@@ -1,14 +1,23 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Loader : MonoBehaviour {
-
-	public GameObject gameManager;
-	
-
-	void Awake ()
+namespace Completed
+{	
+	public class Loader : MonoBehaviour 
 	{
-		if (GameManager.instance == null)
-			Instantiate (gameManager);
+		public GameObject gameManager;
+		public GameObject soundManager;
+
+
+		void Awake ()
+		{
+			if (GameManager.instance == null)
+
+				Instantiate(gameManager);
+
+			if (SoundManager.instance == null)
+
+				Instantiate(soundManager);
+		}
 	}
 }

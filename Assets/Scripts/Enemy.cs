@@ -1,54 +1,72 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Enemy : MovingObject {
-
-	public int playerDamage;
-
-
-	private Animator animator;
-	private Transform target;
-	private bool skipMovie;
-
-
-	protected override void Start ()
+namespace Completed
+{
+	public class Enemy : MovingObject
 	{
-		animator = GetComponent<Animator> ();
-		target = GameObject.FindGameObjectWithTag ("Player").transform;
-		base.Start ();
-	}
+		public int playerDamage;
+		public AudioClip attackSound1;
+		public AudioClip attackSound2;
 
-	protected override void AttemptMove<T> (int xDir ,int yDir)
-	{
-		if (skipMovie)
+
+		private Animator animator;
+		private Transform target;
+		private bool skipMove;
+
+
+		protected override void Start ()
 		{
-			skipMovie = false;
-			return;
+			GameManager.instance.AddEnemyToList (this);
+
+			animator = GetComponent<Animator> ();
+
+			target = GameObject.FindGameObjectWithTag ("Player").transform;
+
+			base.Start ();
 		}
 
-		base.AttemptMove <T> (xDir, yDir);
 
-		skipMovie = true;
-	}
+		protected override void AttemptMove <T> (int xDir, int yDir)
+		{
+			if(skipMove)
+			{
+				skipMove = false;
+				return;
 
-	public void MoveEnemy()
-	{
-		int xDir = 0;
-		int yDir = 0;
+			}
+				
+			base.AttemptMove <T> (xDir, yDir);
 
-		if (Mathf.Abs (target.position.x - transform.position.x) < float.Epsilon)
-			yDir = target.position.y > transform.position.y ? 1 : -1;
-		else
-			xDir = target.position.x > transform.position.x ? 1 : -1;
-		
-		AttemptMove <Player> (xDir, yDir);
+			skipMove = true;
+		}
 
-	}
 
-	protected override void OnCantMove <T> (T component)
-	{
-		Player hitPlayer = component as Player;
+		public void MoveEnemy ()
+		{
+			int xDir = 0;
+			int yDir = 0;
 
-		hitPlayer.LoseFood (playerDamage);
+			if(Mathf.Abs (target.position.x - transform.position.x) < float.Epsilon)
+
+				yDir = target.position.y > transform.position.y ? 1 : -1;
+
+			else
+				xDir = target.position.x > transform.position.x ? 1 : -1;
+
+			AttemptMove <Player> (xDir, yDir);
+		}
+
+
+		protected override void OnCantMove <T> (T component)
+		{
+			Player hitPlayer = component as Player;
+
+			hitPlayer.LoseFood (playerDamage);
+
+			animator.SetTrigger ("enemyAttack");
+
+			SoundManager.instance.RandomizeSfx (attackSound1, attackSound2);
+		}
 	}
 }
